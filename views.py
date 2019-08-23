@@ -37,10 +37,10 @@ def login():
 	form = LoginForm(request.form)
 	if request.method == 'POST':
 		if form.validate_on_submit():
-			user = User.query.filter_by(username=request.form['username']).first()
+			user = User.query.filter_by(name=request.form['username']).first()
 			if user is not None and user.password == request.form['password']:
 				session['logged_in'] = True
-				session['user_id'] = user.user_id
+				session['user_id'] = user.id
 				flash("Welcome!")
 				return redirect(url_for('tasks'))
 			else:
@@ -94,7 +94,7 @@ def new_task():
 @login_required
 def delete_entry(task_id):
 	delete_id = task_id
-	db.session.query(Task).filter_by(task_id=delete_id).delete()
+	db.session.query(Task).filter_by(id=delete_id).delete()
 	db.session.commit()
 	flash("The task was deleted. Why not add a new one?")
 	return redirect(url_for('tasks'))
@@ -103,7 +103,7 @@ def delete_entry(task_id):
 @login_required
 def complete(task_id):
 	complete_id = task_id
-	db.session.query(Task).filter_by(task_id=complete_id).update({"status": "0"})
+	db.session.query(Task).filter_by(id=complete_id).update({"status": "0"})
 	db.session.commit()
 	flash("The task is complete. Nice.")
 	return redirect(url_for('tasks'))
