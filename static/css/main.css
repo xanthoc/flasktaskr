@@ -20,11 +20,6 @@ h2 {
   font-size: 1.5em;
 }
 
-label {
-  display: block;
-  font-weight: bold;
-}
-
 .page {
   margin: 2em auto;
   width: 50em;
@@ -51,6 +46,7 @@ label {
   font-size: 0.9em;
   border-bottom: 1px solid #ccc;
 }
+
 .add-task dl {
   font-weight: bold;
 }
@@ -69,12 +65,9 @@ label {
 }
 
 .error {
-  background: #F0D6D6;
-  padding: 0.5em;
-}
-
-.input-group {
-  margin-bottom: 15px;
+  color: red;
+  font-size: .8em;
+  background-color: #FFFFFF;
 }
 
 .datagrid table {
@@ -100,6 +93,7 @@ label {
   font-size: 15px;
   font-weight: bold;
 }
+
 .datagrid table thead th:first-child {
   border: none;
 }
@@ -133,4 +127,13 @@ label {
   margin: 0;
   text-decoration:none;
   position:relative;
+}
+
+.inline-form .input-group {
+  display: inline-block;
+  margin: 10px 5px;
+}
+
+.input-group input {
+  width: 100px;
 }

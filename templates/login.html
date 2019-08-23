@@ -2,19 +2,36 @@
 {% block content %}
 	<h1>Welcome to FlaskTaskr!</h1>
 	<h3>Please login to access your task list.</h3>
-	<form action="/" method="post">
-		<div class="input-group">
-			<label for="name">Username:</label>
-			<input type="text" id="name" name="username">
-		</div>
-		<div class="input-group">
-			<label for="password">Password:</label>
-			<input type="password" id="password" name="password">
-		</div>
-		<div>
-			<button type="submit">Login</button>
-		</div>
-	</form>
-
-	<p><em>User 'admin' for the username and password.</em></p>
+	<div class="half-width">
+		<form action="{{url_for('login')}}" method="post">
+			{{form.csrf_token}}
+			<div class="input-group">
+				{{form.username(placeholder="username")}}
+				{% if form.username.errors %}
+					<span class="error">
+						{% for error in form.username.errors %}
+							{{error}}
+						{% endfor %}
+					</span>
+				{% endif %}
+			</div>
+			<div class="input-group">
+				{{form.password(placeholder="password")}}
+				{% if form.password.errors %}
+					<span class="error">
+						{% for error in form.password.errors %}
+							{{error}}
+						{% endfor %}
+					</span>
+				{% endif %}
+			</div>
+			<div>
+				<button class="button" type="submit">Login</button>
+			</div>
+		</form>
+	</div>
+	<br>
+	<div>
+		<em>Need an account? </em><a href="{{url_for('register')}}">Signup!</a>
+	</div>
 {% endblock %}
