@@ -4,6 +4,7 @@ from functools import wraps
 from flask import Flask, flash, redirect, render_template, \
 	request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 
 import datetime
 
@@ -13,6 +14,7 @@ app.config.from_object('_config')
 db = SQLAlchemy(app)
 
 from models import Task, User
+
 
 def login_required(test):
 	@wraps(test)
@@ -24,11 +26,20 @@ def login_required(test):
 			return redirect(url_for('login'))
 	return wrap
 
+
 def flash_error(form):
 	for field, errors in form.errors.items():
 		for error in errors:
 			falsh(u"Error in the %s field - %s" % (
 				getattr(form, field).label.text, error), 'error')
+
+def open_tasks():
+	return db.session.query(Task) \
+		.filter_by(status='1').order_by(Task.due_date.asc())
+
+def closed_tasks():
+	return db.session.query(Task) \
+		.filter_by(status='0').order_by(Task.due_date.asc())
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -50,19 +61,12 @@ def login():
 	return render_template('login.html', form=form, error=error)
 
 @app.route('/logout/')
+@login_required
 def logout():
 	session.pop('logged_in', None)
 	session.pop('user_id', None)
 	flash('Goodbye!')
 	return redirect(url_for('login'))
-
-def open_tasks():
-	return db.session.query(Task) \
-		.filter_by(status='1').order_by(Task.due_date.asc())
-
-def closed_tasks():
-	return db.session.query(Task) \
-		.filter_by(status='0').order_by(Task.due_date.asc())
 
 @app.route('/tasks/')
 @login_required
@@ -119,8 +123,11 @@ def register():
 				form.email.data,
 				form.password.data
 				)
-			db.session.add(new_user)
-			db.session.commit()
-			flash("Thanks for registering. Please login.")
-			return redirect(url_for('login'))
+			try:
+				db.session.add(new_user)
+				db.session.commit()
+				flash("Thanks for registering. Please login.")
+				return redirect(url_for('login'))
+			except IntegrityError:
+				error = "That username and/or email already exist."
 	return render_template('register.html', form=form, error=error)
