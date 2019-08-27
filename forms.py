@@ -4,7 +4,6 @@ from wtforms import StringField, DateField, IntegerField, SelectField, \
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 
 class AddTaskForm(Form):
-	task_id = IntegerField()
 	name = StringField('Task Name', validators=[DataRequired()])
 	due_date = DateField('Date Due (mm/dd/yyyy)', \
 		validators=[DataRequired()], format='%m/%d/%Y')
@@ -17,8 +16,8 @@ class AddTaskForm(Form):
 	status = IntegerField('Status')
 
 	def __repr__(self):
-		return "<AddTaskForm: {}, {}, {}, {}, {}".format(self.task_id.data, \
-			self.name.data, self.due_date.data, \
+		return "<AddTaskForm: {}, {}, {}, {}".format(
+			self.name.data, self.due_date.data,
 			self.priority.data, self.status.data)
 
 class RegisterForm(Form):
