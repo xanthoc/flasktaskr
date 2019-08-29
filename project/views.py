@@ -52,6 +52,7 @@ def login():
 			if user is not None and user.password == request.form['password']:
 				session['logged_in'] = True
 				session['user_id'] = user.id
+				session['role'] = user.role
 				flash("Welcome!")
 				return redirect(url_for('tasks'))
 			else:
@@ -63,6 +64,7 @@ def login():
 def logout():
 	session.pop('logged_in', None)
 	session.pop('user_id', None)
+	session.pop('role', None)
 	flash('Goodbye!')
 	return redirect(url_for('login'))
 
@@ -96,18 +98,26 @@ def new_task():
 @login_required
 def delete_entry(task_id):
 	delete_id = task_id
-	db.session.query(Task).filter_by(id=delete_id).delete()
-	db.session.commit()
-	flash("The task was deleted. Why not add a new one?")
+	task = db.session.query(Task).filter_by(id=delete_id)
+	if session['user_id'] == task.first().user_id or session['role'] == 'admin':
+		db.session.query(Task).filter_by(id=delete_id).delete()
+		db.session.commit()
+		flash("The task was deleted. Why not add a new one?")
+	else:
+		flash("You can only delete tasks that belong to you.")
 	return redirect(url_for('tasks'))
 
 @app.route('/complete/<int:task_id>/')
 @login_required
 def complete(task_id):
 	complete_id = task_id
-	db.session.query(Task).filter_by(id=complete_id).update({"status": "0"})
-	db.session.commit()
-	flash("The task is complete. Nice.")
+	task = db.session.query(Task).filter_by(id=complete_id)
+	if session['user_id'] == task.first().user_id or session['role'] == 'admin':
+		task.update({"status": "0"})
+		db.session.commit()
+		flash("The task is complete. Nice.")
+	else:
+		flash('You can only update tasks that belong to you.')
 	return redirect(url_for('tasks'))
 
 @app.route('/register/', methods=['GET', 'POST'])

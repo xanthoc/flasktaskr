@@ -3,6 +3,7 @@ import unittest
 
 from views import app, db
 from _config import basedir
+from models import User
 
 TEST_DB = "test.db"
 
@@ -41,6 +42,12 @@ class TasksTest(unittest.TestCase):
 			posted_date='10/08/2016', status='1'),
 			follow_redirects=True)
 
+	def create_admin_user(self):
+		new_user = User(
+			name='admin', email='admin@b.com', password='admin', role='admin')
+		db.session.add(new_user)
+		db.session.commit()
+
 	# test cases
 	def test_users_can_add_task(self):
 		response = self.create_task()
@@ -71,7 +78,38 @@ class TasksTest(unittest.TestCase):
 		self.login('fletcher', 'python')
 		response = self.app.get('/complete/1/', follow_redirects=True)
 		self.assertNotIn(b'The task is complete. Nice.', response.data)
+		self.assertIn(b'You can only update tasks that belong to you.',
+			response.data)
 
+	def test_users_cannot_delete_task_that_are_not_created_by_them(self):
+		self.create_task()
+		self.logout()
+		self.register('fletcher', 'fletcher@realpython.com', 'python', 'python')
+		self.login('fletcher', 'python')
+		response = self.app.get('/delete/1/', follow_redirects=True)
+		self.assertNotIn(b'The task was deleted. Why not add a new one?', response.data)
+		self.assertIn(b'You can only delete tasks that belong to you.',
+			response.data)
+
+	def test_admin_users_can_complete_tasks_that_are_not_created_by_them(self):
+		self.create_task()
+		self.logout()
+		self.create_admin_user()
+		self.login('admin', 'admin')
+		response = self.app.get('/complete/1/', follow_redirects=True)
+		self.assertIn(b'The task is complete. Nice.', response.data)
+		self.assertNotIn(b'You can only update tasks that belong to you.',
+			response.data)
+
+	def test_admin_users_can_delete_task_that_are_not_created_by_them(self):
+		self.create_task()
+		self.logout()
+		self.create_admin_user()
+		self.login('admin', 'admin')
+		response = self.app.get('/delete/1/', follow_redirects=True)
+		self.assertIn(b'The task was deleted. Why not add a new one?', response.data)
+		self.assertNotIn(b'You can only delete tasks that belong to you.',
+			response.data)
 
 if __name__ == "__main__":
 	unittest.main()

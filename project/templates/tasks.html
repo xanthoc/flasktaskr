@@ -30,7 +30,8 @@
 			{% endif %}
 		</div>
 		<div class="form-group">
-			{{form.priority(placeholder="priority")}}
+			{{form.priority.label}}
+			{{form.priority}}
 			{% if form.priority.errors %}
 				<div class="error">
 					{% for error in form.priority.errors %}
