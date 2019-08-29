@@ -56,8 +56,6 @@ def login():
 				return redirect(url_for('tasks'))
 			else:
 				error = 'Invalid credentials. Please try again.'
-		else:
-			error = "Both fields are required."
 	return render_template('login.html', form=form, error=error)
 
 @app.route('/logout/')

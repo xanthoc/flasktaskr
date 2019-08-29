@@ -7,7 +7,7 @@ from models import User
 
 TEST_DB = "test.db"
 
-class AllTests(unittest.TestCase):
+class UsersTest(unittest.TestCase):
 	def setUp(self):
 		app.config['TESTING'] = True
 		app.config['WTF_CSRF_ENABLED'] = False
@@ -24,8 +24,8 @@ class AllTests(unittest.TestCase):
 	def login(self, username, password):
 		return self.app.post('/', data=dict(
 			username=username, password=password),
-			follow_redirects=True
-			)
+			follow_redirects=True)
+
 	def register(self, username, email, password, confirm):
 		return self.app.post('/register/', data=dict(
 			username=username, email=email, password=password, confirm=confirm),
@@ -33,12 +33,6 @@ class AllTests(unittest.TestCase):
 
 	def logout(self):
 		return self.app.get('/logout/', follow_redirects=True)
-
-	def create_task(self):
-		return self.app.post('/add/', data=dict(
-			name='Go to the bank', due_date='10/08/2016', priority='1',
-			posted_date='10/08/2016', status='1'),
-			follow_redirects=True)
 
 	# test cases
 	def test_form_is_present_on_root_page(self):
@@ -90,54 +84,6 @@ class AllTests(unittest.TestCase):
 		response = self.app.get('/tasks/', follow_redirects=True)
 		self.assertIn(b'You need to login first.', response.data)
 
-	def test_users_can_add_task(self):
-		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
-		self.login('michael', 'michaelherman')
-		response = self.create_task()
-		self.assertIn(b'New entry was successfully posted. Thanks!', response.data)
-		self.assertIn(b'Go to the bank', response.data)
-
-	def test_users_cannot_add_task_when_error(self):
-		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
-		self.login('michael', 'michaelherman')
-		response = self.app.post('/add/', data=dict(
-			name='Go to the bank', due_date='', priority='1',
-			posted_date='10/08/2016', status='1'),
-			follow_redirects=True)
-		self.assertIn(b'This field is required.', response.data)
-
-	def test_users_can_complete_task(self):
-		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
-		self.login('michael', 'michaelherman')
-		self.create_task()
-		response = self.app.get('/complete/1/', follow_redirects=True)
-		self.assertIn(b'The task is complete. Nice.', response.data)
-
-	def test_users_can_delete_task(self):
-		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
-		self.login('michael', 'michaelherman')
-		self.create_task()
-		response = self.app.get('/delete/1/', follow_redirects=True)
-		self.assertIn(b'The task was deleted.', response.data)
-
-	def test_users_cannot_complete_task_that_are_not_created_by_them(self):
-		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
-		self.login('michael', 'michaelherman')
-		self.create_task()
-		self.logout()
-		self.register('fletcher', 'fletcher@realpython.com', 'python', 'python')
-		self.login('fletcher', 'python')
-		response = self.app.get('/complete/1/', follow_redirects=True)
-		self.assertNotIn(b'The task is complete. Nice.', response.data)
-
-
-
-
-	# def test_invalid_form_data(self):
-	# 	response = self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
-	# 	self.assertIn(b'Thanks for registering. Please login.', response.data)
-	# 	response = self.login('michael', 'michaelherman')
-	# 	self.assertIn(b'Welcome!', response.data)
 
 if __name__ == "__main__":
 	unittest.main()
