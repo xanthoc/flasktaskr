@@ -4,7 +4,7 @@
 
 <h1>Welcome to FlaskTaskr.</h1>
 <h3>Please sign in to access your task list.</h3>
-<form class="form-signin" role="form" action="{{url_for('login')}}" method="post">
+<form class="form-signin" role="form" action="{{url_for('users.login')}}" method="post">
 	{{form.csrf_token}}
 	<div class="input-group">
 		{{form.username(placeholder="username")}}
@@ -30,7 +30,7 @@
 	<button class="btn btn-sm btn-success" type="submit">Sign in</button>
 	<br>
 	<br>
-	<p><em>Need an account? </em><a href="{{url_for('register')}}">Signup!!</a></p>
+	<p><em>Need an account? </em><a href="{{url_for('users.register')}}">Signup!!</a></p>
 </form>
 
 {% endblock %}

@@ -4,7 +4,7 @@
 
 <h1>Welcome to FlaskTaskr.</h1>
 <h3>Please register to access the task list.</h3>
-<form method="post" action="{{url_for('register')}}">
+<form method="post" action="{{url_for('users.register')}}">
 	{{form.csrf_token}}
 	<div class="input-group">
 		{{form.username(placeholder="username")}}
@@ -50,7 +50,7 @@
 	<button class="btn btn-sm btn-success" type="submit">Register</button>
 	<br>
 	<br>
-	<p><em>Already registered? </em>Click <a href="{{url_for('login')}}">here</a> to login.</p>
+	<p><em>Already registered? </em>Click <a href="{{url_for('users.login')}}">here</a> to login.</p>
 </form>
 
 {% endblock %}
