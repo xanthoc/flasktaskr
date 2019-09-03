@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from project import app, db
+from project import app, db, bcrypt
 from project._config import basedir
 from project.models import User
 
@@ -44,7 +44,8 @@ class TasksTest(unittest.TestCase):
 
 	def create_admin_user(self):
 		new_user = User(
-			name='admin', email='admin@b.com', password='admin', role='admin')
+			name='admin', email='admin@b.com', password=bcrypt.generate_password_hash(
+				'admin'), role='admin')
 		db.session.add(new_user)
 		db.session.commit()
 
@@ -110,6 +111,41 @@ class TasksTest(unittest.TestCase):
 		self.assertIn(b'The task was deleted. Why not add a new one?', response.data)
 		self.assertNotIn(b'You can only delete tasks that belong to you.',
 			response.data)
+
+	def test_users_cannot_see_task_modify_links_for_tasks_not_created_by_them(self):
+		self.create_task()
+		self.logout()
+		self.register('fletcher', 'fletcher@realpython.com', 'python', 'python')
+		self.login('fletcher', 'python')
+		response = self.app.get('/tasks/', follow_redirects=True)
+		self.assertNotIn(b'Mark as complete', response.data)
+		self.assertNotIn(b'Delete', response.data)
+
+	def test_users_can_see_task_modify_links_for_tasks_created_by_them(self):
+		self.create_task()
+		self.logout()
+		self.register('fletcher', 'fletcher@realpython.com', 'python', 'python')
+		self.login('fletcher', 'python')
+		self.create_task()
+		response = self.app.get('/tasks/', follow_redirects=True)
+		self.assertNotIn(b'/complete/1/', response.data)
+		self.assertNotIn(b'/delete/1/', response.data)
+		self.assertIn(b'/complete/2/', response.data)
+		self.assertIn(b'/delete/2/', response.data)
+
+	def test_admin_users_can_see_task_modify_links_for_all_tasks(self):
+		self.create_task()
+		self.logout()
+		self.create_admin_user()
+		self.login('admin', 'admin')
+		self.create_task()
+		response = self.app.get('/tasks/', follow_redirects=True)
+		self.assertIn(b'/complete/1/', response.data)
+		self.assertIn(b'/delete/1/', response.data)
+		self.assertIn(b'/complete/2/', response.data)
+		self.assertIn(b'/delete/2/', response.data)
+
+
 
 if __name__ == "__main__":
 	unittest.main()
