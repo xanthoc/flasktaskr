@@ -1,0 +1,39 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<h1>Welcome to FlaskTaskr!</h1>
+<div class="entries">
+	<br>
+	<br>
+	<h2>Users:</h2>
+	<div class="datagrid">
+		<table>
+			<thead>
+				<tr>
+					<th width="200px"><strong>Username</strong></th>
+					<th width="200px"><strong>Email</strong></th>
+					<th width="100px"><strong>Role</strong></th>
+					<th><strong>Actions</strong></th>
+				</tr>
+			</thead>
+			{% for user in all_users %}
+				<tr>
+					<td width="200px">{{user.name}}</td>
+					<td width="200px">{{user.email}}</td>
+					<td width="100px">{{user.role}}</td>
+					<td>
+						{% if user.name == session.username %}
+							<span>N/A</span>
+						{% else %}
+							<a href="{{url_for('users.delete_user', user_id=user.id)}}">Delete</a> -
+							<a href="{{url_for('users.change_role', user_id=user.id)}}">Change Role</a>
+						{% endif %}
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+
+{% endblock %}
