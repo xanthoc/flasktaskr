@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from project import app, db
+from project import app, db, bcrypt
 from project._config import basedir
 from project.models import User
 
@@ -37,6 +37,13 @@ class UsersTest(unittest.TestCase):
 	def logout(self):
 		return self.app.get('/logout/', follow_redirects=True)
 
+	def create_admin_user(self):
+		new_user = User(
+			name='admin', email='admin@b.com', password=bcrypt.generate_password_hash(
+				'admin'), role='admin')
+		db.session.add(new_user)
+		db.session.commit()
+
 	# test cases
 	def test_form_is_present_on_root_page(self):
 		response = self.app.get('/')
@@ -54,7 +61,7 @@ class UsersTest(unittest.TestCase):
 
 	def test_users_can_register(self):
 		response = self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
-		self.assertIn(b'Thanks for registering. Please login.', response.data)
+		self.assertIn(b'Thanks for registering. Please sign in.', response.data)
 
 	def test_users_can_login_if_registered(self):
 		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
@@ -85,7 +92,7 @@ class UsersTest(unittest.TestCase):
 
 	def test_not_logged_in_users_cannot_access_tasks_page(self):
 		response = self.app.get('/tasks/', follow_redirects=True)
-		self.assertIn(b'You need to login first.', response.data)
+		self.assertIn(b'You need to sign in first.', response.data)
 
 	def test_default_user_role(self):
 		db.session.add(
@@ -102,6 +109,66 @@ class UsersTest(unittest.TestCase):
 		self.login('michael', 'michaelherman')
 		response = self.app.get('/tasks/', follow_redirects=True)
 		self.assertIn(b'michael', response.data)
+
+	def test_only_admin_users_can_see_users_link(self):
+		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
+		response = self.login('michael', 'michaelherman')
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'>Tasks<', response.data)
+		self.assertNotIn(b'>Users<', response.data)
+		self.logout()
+		db.session.add(
+			User('admin', 'admin@b.com',
+				bcrypt.generate_password_hash('admin'), 'admin')
+			)
+		db.session.commit()
+		response = self.login('admin', 'admin')
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'>Tasks<', response.data)
+		self.assertIn(b'>Users<', response.data)
+
+	def test_only_admin_users_can_see_users_page(self):
+		response = self.app.get('/users/', follow_redirects=True)
+		self.assertIn(b'You need to sign in first.', response.data)
+		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
+		self.login('michael', 'michaelherman')
+		response = self.app.get('/users/', follow_redirects=True)
+		self.assertIn(b'You must have admin privilege.', response.data)
+		self.logout()
+		db.session.add(
+			User('admin', 'admin@b.com',
+				bcrypt.generate_password_hash('admin'), 'admin')
+			)
+		db.session.commit()
+		self.login('admin', 'admin')
+		response = self.app.get('/users/', follow_redirects=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'Users:', response.data)
+		self.assertIn(b'Role', response.data)
+
+	def test_admin_users_can_change_role(self):
+		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
+		self.create_admin_user()
+		self.login('admin', 'admin')
+		response = self.app.get('/change_role/1/', follow_redirects=True)
+		self.assertIn(b'The role was changed.', response.data)
+
+	def test_admin_users_can_delete_user(self):
+		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
+		self.create_admin_user()
+		self.login('admin', 'admin')
+		response = self.app.get('/delete_user/1/', follow_redirects=True)
+		self.assertIn(b'The user was deleted.', response.data)
+		self.assertNotIn(b'michael', response.data)
+
+	def test_admin_users_cannot_see_links_for_themselves(self):
+		self.create_admin_user()
+		self.login('admin', 'admin')
+		response = self.app.get('/users/', follow_redirects=True)
+		self.assertNotIn(b'Delete', response.data)
+		self.assertNotIn(b'Change Role', response.data)
+
+
 
 
 if __name__ == "__main__":
