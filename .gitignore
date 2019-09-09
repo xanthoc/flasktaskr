@@ -6,3 +6,4 @@ __pycache__
 .coverage
 htmlcov
 error.log
+test.db
