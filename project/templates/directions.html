@@ -2,8 +2,80 @@
 
 {% block content %}
 
-<h1>Find directions</h1>
+<h1>Get directions</h1>
 
+<form action="{{url_for('directions.apply_directions')}}" method="post">
+	{{form.csrf_token}}
+	<h3>From:</h3>
+	<div>
+		<div class="form-group">
+			{{form.from_st_addr(placeholder="Street Address")}}
+			{% if form.from_st_addr.errors %}
+				<div class="error">
+					{% for error in form.from_st_addr.errors %}
+						{{error}}
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+		<div class="form-group">
+			{{form.from_city(placeholder="City")}}
+			{% if form.from_city.errors %}
+				<div class="error">
+					{% for error in form.from_city.errors %}
+						{{error}}
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+		<div class="form-group">
+			{{form.from_state(placeholder="State")}}
+			{% if form.from_state.errors %}
+				<div class="error">
+					{% for error in form.from_state.errors %}
+						{{error}}
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+	<h3>To:</h3>
+	<div>
+		<div class="form-group">
+			{{form.to_st_addr(placeholder="Street Address")}}
+			{% if form.to_st_addr.errors %}
+				<div class="error">
+					{% for error in form.to_st_addr.errors %}
+						{{error}}
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+		<div class="form-group">
+			{{form.to_city(placeholder="City")}}
+			{% if form.to_city.errors %}
+				<div class="error">
+					{% for error in form.to_city.errors %}
+						{{error}}
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+		<div class="form-group">
+			{{form.to_state(placeholder="State")}}
+			{% if form.to_state.errors %}
+				<div class="error">
+					{% for error in form.to_state.errors %}
+						{{error}}
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+	<div class="form-group">
+		<input class="btn btn-default" type="submit" value="Apply">
+	</div>
+</form>
 <ul>
 	{% for direction in directions %}
 		<li>{{direction|safe}}</li>
