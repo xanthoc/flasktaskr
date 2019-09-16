@@ -38,6 +38,7 @@ def tasks():
 		open_tasks=open_tasks(), closed_tasks=closed_tasks(),
 		username=session['username'])
 
+# it's not essential to include 'GET' in methods, but it's good to do
 @tasks_blueprint.route('/add/', methods=['GET', 'POST'])
 @login_required
 def new_task():

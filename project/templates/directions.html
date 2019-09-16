@@ -1,0 +1,13 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<h1>Find directions</h1>
+
+<ul>
+	{% for direction in directions %}
+		<li>{{direction|safe}}</li>
+	{% endfor %}
+</ul>
+
+{% endblock %}
