@@ -5,14 +5,15 @@ from project import db
 
 import requests, json
 
+import os
+
 # helper functions
 def get_directions(origin=None, destination=None):
-	res = []
+	google_api_key = os.environ['GOOGLE_API_KEY']
+	res = ["==================================="]
+	total_dist_in_meter = 0
 	if origin != None and destination != None:
-		# origin = "Los+Angeles+CA"
-		# destination = "San+Francisco+CA"
 		output_format = "json"
-		google_api_key = "AIzaSyAujwrlZ65xunoTgoiJfYNtyaCsvor5vmY"
 		url = "https://maps.googleapis.com/maps/api/directions/"
 		url = url + output_format + "?origin=" + origin + "&destination=" + destination
 		url = url + "&key=" + google_api_key
@@ -21,8 +22,11 @@ def get_directions(origin=None, destination=None):
 		output = json.loads(str(r.content, 'utf-8'))
 		for route in output["routes"]:
 			for leg in route["legs"]:
+				total_dist_in_meter += leg["distance"]["value"]
 				for step in leg["steps"]:
-					res.append(step["html_instructions"])
+					res.append(step["html_instructions"]+" ("+step["distance"]["text"]+")")
+		res.insert(0, f"Total distance is <b>{total_dist_in_meter//1000} km</b>")
+
 	return res
 
 
