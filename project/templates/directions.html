@@ -4,7 +4,7 @@
 
 <h1>Get directions</h1>
 
-<form action="{{url_for('directions.apply_directions')}}" method="post">
+<form action="{{url_for('directions.directions_get')}}" method="post">
 	{{form.csrf_token}}
 	<h3>From:</h3>
 	<div>

@@ -1,26 +1,16 @@
 import datetime
-from functools import wraps
 from flask import flash, redirect, render_template, \
 	request, session, url_for, Blueprint
 
 from .forms import AddTaskForm
 from project import db
 from project.models import Task
+from project.commons import login_required
 
 # config
 tasks_blueprint = Blueprint('tasks', __name__)
 
 # helper functions
-def login_required(test):
-	@wraps(test)
-	def wrap(*args, **kwargs):
-		if 'logged_in' in session:
-			return test(*args, **kwargs)
-		else:
-			flash("You need to sign in first.")
-			return redirect(url_for('users.login'))
-	return wrap
-
 def open_tasks():
 	return db.session.query(Task) \
 		.filter_by(status='1').order_by(Task.due_date.asc())

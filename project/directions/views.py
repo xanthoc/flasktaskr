@@ -2,6 +2,7 @@ from flask import render_template, request, Blueprint
 
 from .forms import DirectionsForm
 from project import db
+from project.commons import login_required
 
 import requests, json
 
@@ -10,7 +11,7 @@ import os
 # helper functions
 def get_directions(origin=None, destination=None):
 	google_api_key = os.environ['GOOGLE_API_KEY']
-	res = ["==================================="]
+	res = []
 	total_dist_in_meter = 0
 	if origin != None and destination != None:
 		output_format = "json"
@@ -25,6 +26,7 @@ def get_directions(origin=None, destination=None):
 				total_dist_in_meter += leg["distance"]["value"]
 				for step in leg["steps"]:
 					res.append(step["html_instructions"]+" ("+step["distance"]["text"]+")")
+		res.insert(0, "========================================================")
 		res.insert(0, f"Total distance is <b>{total_dist_in_meter//1000} km</b>")
 
 	return res
@@ -35,12 +37,14 @@ directions_blueprint = Blueprint('directions', __name__)
 
 # routes
 @directions_blueprint.route('/directions/')
+@login_required
 def directions():
 	return render_template('directions.html', form=DirectionsForm(request.form),
 		directions=get_directions())
 
-@directions_blueprint.route('/apply_directions/', methods=['GET', 'POST'])
-def apply_directions():
+@directions_blueprint.route('/directions/get/', methods=['GET', 'POST'])
+@login_required
+def directions_get():
 	error = None
 	form = DirectionsForm(request.form)
 	origin, destination = None, None
