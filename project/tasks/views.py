@@ -29,9 +29,9 @@ def tasks():
 		username=session['username'])
 
 # it's not essential to include 'GET' in methods, but it's good to do
-@tasks_blueprint.route('/add/', methods=['GET', 'POST'])
+@tasks_blueprint.route('/tasks/add/', methods=['GET', 'POST'])
 @login_required
-def new_task():
+def add():
 	error = None
 	form = AddTaskForm(request.form)
 	if request.method == 'POST':
@@ -47,9 +47,9 @@ def new_task():
 	return render_template("tasks.html", form=form, error=error,
 		open_tasks=open_tasks(), closed_tasks=closed_tasks())
 
-@tasks_blueprint.route('/delete/<int:task_id>/')
+@tasks_blueprint.route('/tasks/delete/<int:task_id>/')
 @login_required
-def delete_entry(task_id):
+def delete(task_id):
 	delete_id = task_id
 	task = db.session.query(Task).filter_by(id=delete_id)
 	if session['user_id'] == task.first().user_id or session['role'] == 'admin':
@@ -60,7 +60,7 @@ def delete_entry(task_id):
 		flash("You can only delete tasks that belong to you.")
 	return redirect(url_for('tasks.tasks'))
 
-@tasks_blueprint.route('/complete/<int:task_id>/')
+@tasks_blueprint.route('/tasks/complete/<int:task_id>/')
 @login_required
 def complete(task_id):
 	complete_id = task_id

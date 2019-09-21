@@ -26,7 +26,7 @@
 						{% if user.name == session.username %}
 							<span>N/A</span>
 						{% else %}
-							<a href="{{url_for('users.delete_user', user_id=user.id)}}">Delete</a> -
+							<a href="{{url_for('users.delete', user_id=user.id)}}">Delete</a> -
 							<a href="{{url_for('users.change_role', user_id=user.id)}}">Change Role</a>
 						{% endif %}
 					</td>

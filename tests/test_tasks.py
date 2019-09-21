@@ -41,7 +41,7 @@ class TasksTest(unittest.TestCase):
 		return self.app.get('/logout/', follow_redirects=True)
 
 	def create_task(self):
-		return self.app.post('/add/', data=dict(
+		return self.app.post('/tasks/add/', data=dict(
 			name='Go to the bank', due_date='10/08/2016', priority='1',
 			posted_date='10/08/2016', status='1'),
 			follow_redirects=True)
@@ -60,7 +60,7 @@ class TasksTest(unittest.TestCase):
 		self.assertIn(b'Go to the bank', response.data)
 
 	def test_users_cannot_add_task_when_error(self):
-		response = self.app.post('/add/', data=dict(
+		response = self.app.post('/tasks/add/', data=dict(
 			name='Go to the bank', due_date='', priority='1',
 			posted_date='10/08/2016', status='1'),
 			follow_redirects=True)
@@ -68,12 +68,12 @@ class TasksTest(unittest.TestCase):
 
 	def test_users_can_complete_task(self):
 		self.create_task()
-		response = self.app.get('/complete/1/', follow_redirects=True)
+		response = self.app.get('/tasks/complete/1/', follow_redirects=True)
 		self.assertIn(b'The task is complete. Nice.', response.data)
 
 	def test_users_can_delete_task(self):
 		self.create_task()
-		response = self.app.get('/delete/1/', follow_redirects=True)
+		response = self.app.get('/tasks/delete/1/', follow_redirects=True)
 		self.assertIn(b'The task was deleted.', response.data)
 
 	def test_users_cannot_complete_task_that_are_not_created_by_them(self):
@@ -81,7 +81,7 @@ class TasksTest(unittest.TestCase):
 		self.logout()
 		self.register('fletcher', 'fletcher@realpython.com', 'python', 'python')
 		self.login('fletcher', 'python')
-		response = self.app.get('/complete/1/', follow_redirects=True)
+		response = self.app.get('/tasks/complete/1/', follow_redirects=True)
 		self.assertNotIn(b'The task is complete. Nice.', response.data)
 		self.assertIn(b'You can only update tasks that belong to you.',
 			response.data)
@@ -91,7 +91,7 @@ class TasksTest(unittest.TestCase):
 		self.logout()
 		self.register('fletcher', 'fletcher@realpython.com', 'python', 'python')
 		self.login('fletcher', 'python')
-		response = self.app.get('/delete/1/', follow_redirects=True)
+		response = self.app.get('/tasks/delete/1/', follow_redirects=True)
 		self.assertNotIn(b'The task was deleted. Why not add a new one?', response.data)
 		self.assertIn(b'You can only delete tasks that belong to you.',
 			response.data)
@@ -101,7 +101,7 @@ class TasksTest(unittest.TestCase):
 		self.logout()
 		self.create_admin_user()
 		self.login('admin', 'admin')
-		response = self.app.get('/complete/1/', follow_redirects=True)
+		response = self.app.get('/tasks/complete/1/', follow_redirects=True)
 		self.assertIn(b'The task is complete. Nice.', response.data)
 		self.assertNotIn(b'You can only update tasks that belong to you.',
 			response.data)
@@ -111,7 +111,7 @@ class TasksTest(unittest.TestCase):
 		self.logout()
 		self.create_admin_user()
 		self.login('admin', 'admin')
-		response = self.app.get('/delete/1/', follow_redirects=True)
+		response = self.app.get('/tasks/delete/1/', follow_redirects=True)
 		self.assertIn(b'The task was deleted. Why not add a new one?', response.data)
 		self.assertNotIn(b'You can only delete tasks that belong to you.',
 			response.data)
@@ -132,10 +132,10 @@ class TasksTest(unittest.TestCase):
 		self.login('fletcher', 'python')
 		self.create_task()
 		response = self.app.get('/tasks/', follow_redirects=True)
-		self.assertNotIn(b'/complete/1/', response.data)
-		self.assertNotIn(b'/delete/1/', response.data)
-		self.assertIn(b'/complete/2/', response.data)
-		self.assertIn(b'/delete/2/', response.data)
+		self.assertNotIn(b'/tasks/complete/1/', response.data)
+		self.assertNotIn(b'/tasks/delete/1/', response.data)
+		self.assertIn(b'/tasks/complete/2/', response.data)
+		self.assertIn(b'/tasks/delete/2/', response.data)
 
 	def test_admin_users_can_see_task_modify_links_for_all_tasks(self):
 		self.create_task()
@@ -144,10 +144,10 @@ class TasksTest(unittest.TestCase):
 		self.login('admin', 'admin')
 		self.create_task()
 		response = self.app.get('/tasks/', follow_redirects=True)
-		self.assertIn(b'/complete/1/', response.data)
-		self.assertIn(b'/delete/1/', response.data)
-		self.assertIn(b'/complete/2/', response.data)
-		self.assertIn(b'/delete/2/', response.data)
+		self.assertIn(b'/tasks/complete/1/', response.data)
+		self.assertIn(b'/tasks/delete/1/', response.data)
+		self.assertIn(b'/tasks/complete/2/', response.data)
+		self.assertIn(b'/tasks/delete/2/', response.data)
 
 
 

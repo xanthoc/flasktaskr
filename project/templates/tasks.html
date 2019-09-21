@@ -5,7 +5,7 @@
 <h1>Welcome to FlaskTaskr!</h1>
 <div class="add-task">
 	<h3>Add a new task:</h3>
-	<form action="{{url_for('tasks.new_task')}}" method="post">
+	<form action="{{url_for('tasks.add')}}" method="post">
 		{{form.csrf_token}}
 		<div class="form-group">
 			{{form.name(placeholder="name")}}
@@ -68,7 +68,7 @@
 					<td width="90px">{{task.poster.name}}</td>
 					<td>
 						{% if task.poster.name == session.username or session.role == 'admin' %}
-							<a href="{{url_for('tasks.delete_entry', task_id=task.id)}}">Delete</a> -
+							<a href="{{url_for('tasks.delete', task_id=task.id)}}">Delete</a> -
 							<a href="{{url_for('tasks.complete', task_id=task.id)}}">Mark as Complete</a>
 						{% else %}
 							<span>N/A</span>
@@ -104,7 +104,7 @@
 					<td width="90px">{{task.poster.name}}</td>
 					<td>
 						{% if task.poster.name == session.username or session.role == 'admin' %}
-							<a href="{{url_for('tasks.delete_entry', task_id=task.id)}}">Delete</a>
+							<a href="{{url_for('tasks.delete', task_id=task.id)}}">Delete</a>
 						{% else %}
 							<span>N/A</span>
 						{% endif %}

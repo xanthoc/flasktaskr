@@ -72,16 +72,16 @@ def users():
 		all_users=all_users()
 		)
 
-@users_blueprint.route('/delete_user/<int:user_id>/')
+@users_blueprint.route('/users/delete/<int:user_id>/')
 @admin_required
-def delete_user(user_id):
+def delete(user_id):
 	delete_id = user_id
 	db.session.query(User).filter_by(id=delete_id).delete()
 	db.session.commit()
 	flash("The user was deleted.")
 	return redirect(url_for('users.users'))
 
-@users_blueprint.route('/change_role/<int:user_id>/')
+@users_blueprint.route('/users/change_role/<int:user_id>/')
 @admin_required
 def change_role(user_id):
 	complete_id = user_id

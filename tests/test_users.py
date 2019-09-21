@@ -150,14 +150,14 @@ class UsersTest(unittest.TestCase):
 		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
 		self.create_admin_user()
 		self.login('admin', 'admin')
-		response = self.app.get('/change_role/1/', follow_redirects=True)
+		response = self.app.get('/users/change_role/1/', follow_redirects=True)
 		self.assertIn(b'The role was changed.', response.data)
 
 	def test_admin_users_can_delete_user(self):
 		self.register('michael', 'michael@mherman.org', 'michaelherman', 'michaelherman')
 		self.create_admin_user()
 		self.login('admin', 'admin')
-		response = self.app.get('/delete_user/1/', follow_redirects=True)
+		response = self.app.get('/users/delete/1/', follow_redirects=True)
 		self.assertIn(b'The user was deleted.', response.data)
 		self.assertNotIn(b'michael', response.data)
 
