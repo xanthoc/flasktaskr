@@ -7,7 +7,7 @@ DATABASE = 'flasktaskr.db'
 CSRF_ENABLED = True
 SECRET_KEY = 'my_precisou'
 SQLALCHEMY_TRACK_MODIFICATIONS = True
-DEBUG = False
+DEBUG = True
 
 #define the full path for the database
 DATABASE_PATH = os.path.join(basedir, DATABASE)
