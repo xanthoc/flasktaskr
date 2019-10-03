@@ -1,0 +1,64 @@
+{% extends "_base.html" %}
+
+{% block content %}
+<div class="row">
+	<br>
+	<button type="button" onclick="loadXMLDoc()">Get my CD titles</button>
+	<br><br>
+	<div class="col-sm-4"  id="div_demo">
+		<p id="showCD"></p>
+	</div>
+	<div class="col-sm-8">
+		<table id="demo" class="table-hover table-bordered"></table>
+	</div>
+</div>
+<script>
+var x;
+var idx = 0;
+function loadXMLDoc() {
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function () {
+		if (this.readyState == 4 && this.status == 200) {
+			myFunction(this);
+		}
+	};
+	xmlhttp.open("GET", "/static/cd_catalog.xml", true);
+	xmlhttp.send();
+}
+function myFunction(xml) {
+	var i;
+	var xmlDoc = xml.responseXML;
+	var table="<tr><th>Artist</th><th>Title</th></tr>";
+	x = xmlDoc.getElementsByTagName("CD");
+	for (i = 0; i <x.length; i++) {
+		table += "<tr onclick='displayCD(" + i + ")'><td>" +
+		x[i].getElementsByTagName("ARTIST")[0].childNodes[0].nodeValue +
+		"</td><td>" +
+		x[i].getElementsByTagName("TITLE")[0].childNodes[0].nodeValue +
+		"</td></tr>";
+	}
+	document.getElementById("demo").innerHTML = table;
+	displayCD(idx);
+	var button = document.createElement("button");
+	button.innerHTML = "<<";
+	document.getElementById("div_demo").appendChild(button);
+	button.addEventListener("click", function () {if (idx>0) idx -= 1; displayCD(idx);});
+
+	button = document.createElement("button");
+	button.innerHTML = ">>";
+	document.getElementById("div_demo").appendChild(button);
+	button.addEventListener("click", function () {if (x.length>idx+1) idx += 1; displayCD(idx);});
+}
+function displayCD(i) {
+	document.getElementById("showCD").innerHTML =
+	"Artist: " + x[i].getElementsByTagName("ARTIST")[0].childNodes[0].nodeValue +
+	"<br>Title: " + x[i].getElementsByTagName("TITLE")[0].childNodes[0].nodeValue +
+	"<br>Country: " + x[i].getElementsByTagName("COUNTRY")[0].childNodes[0].nodeValue +
+	"<br>Company: " + x[i].getElementsByTagName("COMPANY")[0].childNodes[0].nodeValue +
+	"<br>Price: " + x[i].getElementsByTagName("PRICE")[0].childNodes[0].nodeValue +
+	"<br>Year: " + x[i].getElementsByTagName("YEAR")[0].childNodes[0].nodeValue;
+	idx = i;
+}
+</script>
+
+{% endblock %}
